@@ -15,6 +15,7 @@ public class AppShell : Shell
         });
         
         // Sub routes
+        Routing.RegisterRoute(nameof(OrderCreatePage), typeof(OrderCreatePage));
         Routing.RegisterRoute(nameof(DetailsPage), typeof(DetailsPage));
     }
 }

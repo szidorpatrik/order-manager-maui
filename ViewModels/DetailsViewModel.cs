@@ -1,3 +1,4 @@
+using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OrderManagerMaui.Models;
@@ -44,10 +45,8 @@ public partial class DetailsViewModel : ObservableObject
 
         await Clipboard.Default.SetTextAsync(text);
 
-        if (Shell.Current is not null)
-        {
-            await Shell.Current.DisplayAlertAsync("Clipboard", "Order details copied to clipboard.", "OK");
-        }
+        var toast = Toast.Make($"Order #{orderIdDisplay} copied!");
+        await toast.Show();
     }
 
     [RelayCommand]

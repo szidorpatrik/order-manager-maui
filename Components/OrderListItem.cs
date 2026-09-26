@@ -1,3 +1,4 @@
+using Microsoft.Maui.Controls.Shapes;
 using OrderManagerMaui.Models;
 using OrderManagerMaui.ViewModels;
 
@@ -7,56 +8,71 @@ public class OrderListItem : Border
 {
     public OrderListItem()
     {
+        StrokeShape = new RoundRectangle { CornerRadius = 12 };
+        Stroke = Color.FromArgb("#E2E8F0");
+        StrokeThickness = 1;
+        BackgroundColor = Colors.White;
+        Padding = new Thickness(16, 12);
+        Margin = new Thickness(14, 6);
+
+        Shadow = new Shadow
+        {
+            Brush = Colors.Black,
+            Offset = new Point(0, 2),
+            Radius = 4,
+            Opacity = 0.06f
+        };
+
         var customerNameLabel = new Label
         {
             FontSize = 16,
             FontAttributes = FontAttributes.Bold,
-            TextColor = Colors.Black
+            TextColor = Color.FromArgb("#0F172A"),
+            LineBreakMode = LineBreakMode.TailTruncation
         };
         customerNameLabel.SetBinding(Label.TextProperty, nameof(Order.CustomerName));
 
         var addressLabel = new Label
         {
             FontSize = 13,
-            FontAttributes = FontAttributes.Bold,
-            TextColor = Colors.DimGray
+            TextColor = Color.FromArgb("#64748B"),
+            LineBreakMode = LineBreakMode.TailTruncation
         };
         addressLabel.SetBinding(Label.TextProperty, nameof(Order.Address));
+
+        var textStack = new VerticalStackLayout
+        {
+            Spacing = 3,
+            VerticalOptions = LayoutOptions.Center,
+            Children = { customerNameLabel, addressLabel }
+        };
 
         var amountLabel = new Label
         {
             FontSize = 15,
             FontAttributes = FontAttributes.Bold,
-            TextColor = Colors.SeaGreen,
+            TextColor = Color.FromArgb("#16A34A"),
             HorizontalOptions = LayoutOptions.End,
             VerticalOptions = LayoutOptions.Center
         };
-        amountLabel.SetBinding(Label.TextProperty, nameof(Order.TotalAmount));
-
-        var textStack = new VerticalStackLayout
-        {
-            Spacing = 2,
-            VerticalOptions = LayoutOptions.Center,
-            Children =
-            {
-                customerNameLabel,
-                addressLabel,
-            }
-        };
+        amountLabel.SetBinding(Label.TextProperty,
+            new Binding(nameof(Order.TotalAmountString), stringFormat: "{0} Ft")
+        );
 
         var deleteButton = new Button
         {
             Text = "✕",
-            TextColor = Colors.Crimson,
-            BackgroundColor = Colors.Transparent,
-            FontSize = 16,
+            TextColor = Color.FromArgb("#EF4444"),
+            BackgroundColor = Color.FromArgb("#FEE2E2"),
+            CornerRadius = 16,
+            FontSize = 13,
             FontAttributes = FontAttributes.Bold,
-            WidthRequest = 36,
-            HeightRequest = 36,
+            WidthRequest = 32,
+            HeightRequest = 32,
             Padding = 0,
             VerticalOptions = LayoutOptions.Center
         };
-        
+
         deleteButton.SetBinding(
             Button.CommandProperty,
             new Binding(
@@ -71,7 +87,7 @@ public class OrderListItem : Border
 
         var grid = new Grid
         {
-            ColumnSpacing = 10,
+            ColumnSpacing = 12,
             ColumnDefinitions =
             {
                 new ColumnDefinition { Width = GridLength.Star },
@@ -84,7 +100,6 @@ public class OrderListItem : Border
         grid.Add(amountLabel, 1);
         grid.Add(deleteButton, 2);
 
-        // Root
         Content = grid;
     }
 }

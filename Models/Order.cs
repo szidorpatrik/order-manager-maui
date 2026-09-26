@@ -1,3 +1,4 @@
+using System.Globalization;
 using SQLite;
 
 namespace OrderManagerMaui.Models;
@@ -14,4 +15,6 @@ public class Order
     public double? Longitude { get; set; }
     public double? Latitude { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public string TotalAmountString => 
+        TotalAmount.ToString("N0", CultureInfo.CreateSpecificCulture("hu-HU"));
 }

@@ -13,7 +13,7 @@ public partial class OrdersViewModel(DatabaseService db) : ObservableObject
     public partial ObservableCollection<Order> Orders { get; set; } = [];
 
     [ObservableProperty]
-    public partial Order SelectedOrder { get; set; } = new();
+    public partial Order? SelectedOrder { get; set; } = new();
 
     [RelayCommand]
     private async Task LoadOrdersAsync()
@@ -24,15 +24,23 @@ public partial class OrdersViewModel(DatabaseService db) : ObservableObject
     }
 
     [RelayCommand]
-    private async Task OpenDetailsAsync()
+    private async Task NavigateToDetailsAsync()
     {
+        if (SelectedOrder is null) return;
+        
         var parameters = new Dictionary<string, object>
         {
-            {"ItemId", 42},
-            {"Title", "Sensor Data"}
+            { "Order", SelectedOrder }
         };
 
         await Shell.Current.GoToAsync(nameof(DetailsPage), parameters);
+        SelectedOrder = null;
+    }
+
+    [RelayCommand]
+    private async Task NavigateToCreateOrderAsync()
+    {
+        await Shell.Current.GoToAsync(nameof(OrderCreatePage));
     }
 
     [RelayCommand]

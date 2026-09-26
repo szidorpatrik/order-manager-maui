@@ -4,9 +4,9 @@ namespace OrderManagerMaui.Views;
 
 public class DetailsPage : ContentPage
 {
-    public DetailsPage(DetailsViewModel detailsViewModel)
+    public DetailsPage(DetailsViewModel viewModel)
     {
-        BindingContext = detailsViewModel;
+        BindingContext = viewModel;
         this.SetBinding(TitleProperty, nameof(DetailsViewModel.PageTitle));
         
         var titleLabel = new Label

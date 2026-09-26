@@ -1,13 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OrderManagerMaui.Models;
-using OrderManagerMaui.Services;
 using OrderManagerMaui.Views;
 
 namespace OrderManagerMaui.ViewModels;
 
 [QueryProperty(nameof(Order), nameof(Order))]
-public partial class DetailsViewModel(DatabaseService db) : ObservableObject
+public partial class DetailsViewModel : ObservableObject
 {
     [ObservableProperty]
     public partial Order Order { get; set; } = new();
@@ -30,9 +29,25 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
     }
 
     [RelayCommand]
-    private async Task CopyOrderToClipboard()
+    private async Task CopyOrderToClipboardAsync()
     {
-        
+        if (string.IsNullOrWhiteSpace(Order.CustomerName)) return;
+
+        var orderIdDisplay = Order.Id > 0 ? Order.Id.ToString() : "New";
+
+        var text = $"Order #{orderIdDisplay}\n" +
+                   $"Customer: {Order.CustomerName}\n" +
+                   $"Address: {Order.Address}\n" +
+                   $"Total: {Order.TotalAmount:N0} HUF\n" +
+                   $"Status: {(Order.IsDelivered ? "Delivered" : "Pending")}\n" +
+                   $"Created: {Order.CreatedAt:yyyy-MM-dd HH:mm}";
+
+        await Clipboard.Default.SetTextAsync(text);
+
+        if (Shell.Current is not null)
+        {
+            await Shell.Current.DisplayAlertAsync("Clipboard", "Order details copied to clipboard.", "OK");
+        }
     }
 
     [RelayCommand]

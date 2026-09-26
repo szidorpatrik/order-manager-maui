@@ -1,3 +1,4 @@
+using OrderManagerMaui.Components;
 using OrderManagerMaui.ViewModels;
 
 namespace OrderManagerMaui.Views;
@@ -8,30 +9,37 @@ public class OrdersPage : ContentPage
     {
         BindingContext = viewModel;
 
-        var heading = new Label
+        var collectionView = new CollectionView
         {
-            Text = "Pure C# .NET MAUI",
-            FontSize = 28,
-            HorizontalOptions = LayoutOptions.Center
+            ItemTemplate = new DataTemplate(typeof(OrderListItem)),
+            SelectionMode = SelectionMode.Single
         };
+        collectionView.SetBinding(ItemsView.ItemsSourceProperty, nameof(OrdersViewModel.Orders));
+        collectionView.SetBinding(
+            SelectableItemsView.SelectedItemProperty,
+            nameof(OrdersViewModel.SelectedOrder)
+        );
+        collectionView.SetBinding(
+            SelectableItemsView.SelectionChangedCommandProperty, nameof(OrdersViewModel.OpenDetailsCommand)
+        );
 
-        var detailsPageButton = new Button
+        // Root
+        Content = collectionView;
+    }
+
+    protected override async void OnAppearing()
+    {
+        try
         {
-            HorizontalOptions = LayoutOptions.Center,
-            Text = "Details"
-        };
-        detailsPageButton.SetBinding(Button.CommandProperty, nameof(viewModel.OpenDetailsCommand));
-        
-        
-        Content = new VerticalStackLayout
-        {
-            Spacing = 20,
-            VerticalOptions = LayoutOptions.Center,
-            Children =
+            base.OnAppearing();
+            if (BindingContext is OrdersViewModel viewModel)
             {
-                heading,
-                detailsPageButton
+                await viewModel.LoadOrdersCommand.ExecuteAsync(null);
             }
-        };
+        }
+        catch (Exception)
+        {
+            // continue
+        }
     }
 }

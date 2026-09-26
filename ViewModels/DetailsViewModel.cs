@@ -1,11 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using OrderManagerMaui.Services;
 
 namespace OrderManagerMaui.ViewModels;
 
 [QueryProperty(nameof(ItemId), "ItemId")]
 [QueryProperty(nameof(PageTitle), "Title")]
-public partial class DetailsViewModel : ObservableObject
+public partial class DetailsViewModel(DatabaseService db) : ObservableObject
 {
     [ObservableProperty]
     public partial int ItemId { get; set; } = 0;

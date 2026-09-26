@@ -1,8 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using OrderManagerMaui.Services;
 
 namespace OrderManagerMaui.ViewModels;
 
-public partial class OrderCreateViewModel : ObservableObject
+public partial class OrderCreateViewModel(DatabaseService db) : ObservableObject
 {
     public string PageTitle => "New Order";
 
@@ -14,7 +15,4 @@ public partial class OrderCreateViewModel : ObservableObject
 
     [ObservableProperty]
     public partial float TotalAmount { get; set; }
-    
-    
-    
 }

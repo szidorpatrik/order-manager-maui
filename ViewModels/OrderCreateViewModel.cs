@@ -67,6 +67,7 @@ public partial class OrderCreateViewModel(DatabaseService db) : ObservableObject
             Order.TotalAmount = TotalAmount;
 
             await db.SaveOrder(Order);
+            toast = Toast.Make($"Order #{Order.Id} updated");
         }
         else
         {
@@ -79,8 +80,10 @@ public partial class OrderCreateViewModel(DatabaseService db) : ObservableObject
             };
 
             await db.SaveOrder(newOrder);
+            toast = Toast.Make($"Order for {newOrder.CustomerName} added");
         }
 
+        await toast.Show();
         await Shell.Current.GoToAsync("..");
     }
 }

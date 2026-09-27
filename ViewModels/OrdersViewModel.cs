@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OrderManagerMaui.Models;
@@ -27,7 +28,7 @@ public partial class OrdersViewModel(DatabaseService db) : ObservableObject
     private async Task NavigateToDetailsAsync()
     {
         if (SelectedOrder is null) return;
-        
+
         var parameters = new Dictionary<string, object>
         {
             { "Order", SelectedOrder }
@@ -49,6 +50,11 @@ public partial class OrdersViewModel(DatabaseService db) : ObservableObject
         if (order is null) return;
 
         var result = await db.DeleteOrder(order);
-        if (result > 0) await LoadOrdersAsync();
+        if (result > 0)
+        {
+            await LoadOrdersAsync();
+            var toast = Toast.Make($"Order #{order.Id} deleted");
+            await toast.Show();
+        }
     }
 }

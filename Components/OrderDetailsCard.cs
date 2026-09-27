@@ -65,15 +65,28 @@ public class OrderDetailsCard : Border
             stringFormat: "{0} Ft"
         ));
 
-        var locationLabel = new Label
+        var coordinatesLabel = new Label
         {
-            FontSize = 13,
-            TextColor = AppColor.TextMuted.ToColor()
+            FontSize = 13
         };
-        locationLabel.SetBinding(Label.TextProperty, new Binding(
-            nameof(Order.Latitude),
-            converter: new LocationTextConverter()
-        ));
+        coordinatesLabel.SetBinding(Label.TextProperty, new MultiBinding
+        {
+            Bindings =
+            {
+                new Binding(nameof(Order.Latitude)),
+                new Binding(nameof(Order.Longitude))
+            },
+            Converter = new CoordinatesTextConverter()
+        });
+        coordinatesLabel.SetBinding(Label.TextColorProperty, new MultiBinding
+        {
+            Bindings =
+            {
+                new Binding(nameof(Order.Latitude)),
+                new Binding(nameof(Order.Longitude))
+            },
+            Converter = new CoordinatesTextColorConverter()
+        });
 
         var dateLabel = new Label
         {
@@ -113,8 +126,8 @@ public class OrderDetailsCard : Border
                     Spacing = 4,
                     Children =
                     {
-                        new Label { Text = "Coordinates:", FontSize = 12, TextColor = AppColor.TextSubtle.ToColor() },
-                        locationLabel
+                        new Label { Text = "Delivered coordinates:", FontSize = 12, TextColor = AppColor.TextSubtle.ToColor() },
+                        coordinatesLabel
                     }
                 },
                 new VerticalStackLayout
@@ -150,11 +163,40 @@ public class StatusTextColorConverter : IValueConverter
         throw new NotImplementedException();
 }
 
-public class LocationTextConverter : IValueConverter
+public class CoordinatesTextConverter : IMultiValueConverter
 {
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
-        value is double lat && lat != 0 ? $"{lat:F8}° N" : "Not resolved yet";
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (values.Length >= 2 &&
+            values[0] is double lat && lat != 0 &&
+            values[1] is double lon && lon != 0)
+        {
+            var latDir = lat >= 0 ? "N" : "S";
+            var lonDir = lon >= 0 ? "E" : "W";
+            return $"{Math.Abs(lat):F5}° {latDir}, {Math.Abs(lon):F5}° {lonDir}";
+        }
 
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        return "Not resolved yet";
+    }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) =>
+        throw new NotImplementedException();
+}
+
+public class CoordinatesTextColorConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (values.Length >= 2 &&
+            values[0] is double lat && lat != 0 &&
+            values[1] is double lon && lon != 0)
+        {
+            return AppColor.TextSecondary.ToColor();
+        }
+
+        return AppColor.TextSubtle.ToColor();
+    }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) =>
         throw new NotImplementedException();
 }

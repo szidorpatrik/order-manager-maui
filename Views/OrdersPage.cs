@@ -13,7 +13,12 @@ public class OrdersPage : ContentPage
         var collectionView = new CollectionView
         {
             ItemTemplate = new DataTemplate(typeof(OrderListItem)),
-            SelectionMode = SelectionMode.Single
+            SelectionMode = SelectionMode.Single,
+            Footer = new BoxView
+            {
+                HeightRequest = 88,
+                Color = Colors.Transparent
+            }
         };
         collectionView.SetBinding(ItemsView.ItemsSourceProperty, nameof(OrdersViewModel.Orders));
         collectionView.SetBinding(
@@ -28,7 +33,7 @@ public class OrdersPage : ContentPage
         var fabButton = new ImageButton
         {
             Source = "add.svg",
-            BackgroundColor = Color.FromArgb("#16A34A"),
+            BackgroundColor = Color.FromArgb("#4F46E5"),
             CornerRadius = 28,
             WidthRequest = 56,
             HeightRequest = 56,

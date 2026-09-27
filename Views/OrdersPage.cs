@@ -30,25 +30,7 @@ public class OrdersPage : ContentPage
             nameof(OrdersViewModel.NavigateToDetailsCommand)
         );
 
-        var fabButton = new ImageButton
-        {
-            Source = "add.svg",
-            BackgroundColor = Color.FromArgb("#4F46E5"),
-            CornerRadius = 28,
-            WidthRequest = 56,
-            HeightRequest = 56,
-            Padding = 14,
-            HorizontalOptions = LayoutOptions.End,
-            VerticalOptions = LayoutOptions.End,
-            Margin = new Thickness(0, 0, 20, 20),
-            Shadow = new Shadow
-            {
-                Brush = Colors.Black,
-                Offset = new Point(0, 4),
-                Radius = 6,
-                Opacity = 0.3f
-            }
-        };
+        var fabButton = new FabButton("add.svg", Color.FromArgb("#4F46E5"));
         fabButton.SetBinding(ImageButton.CommandProperty, nameof(OrdersViewModel.NavigateToCreateOrderCommand));
 
         var rootGrid = new Grid { Margin = new Thickness(0, 6, 0, 0) };

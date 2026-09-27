@@ -1,4 +1,5 @@
 using Microsoft.Maui.Controls.Shapes;
+using OrderManagerMaui.Components;
 using OrderManagerMaui.ViewModels;
 
 namespace OrderManagerMaui.Views;
@@ -68,27 +69,9 @@ public class OrderCreatePage : ContentPage
             }
         };
 
-        var fabButton = new ImageButton
-        {
-            Source = "save.svg",
-            BackgroundColor = Color.FromArgb("#16A34A"),
-            CornerRadius = 28,
-            WidthRequest = 56,
-            HeightRequest = 56,
-            Padding = 14,
-            HorizontalOptions = LayoutOptions.End,
-            VerticalOptions = LayoutOptions.End,
-            Margin = new Thickness(0, 0, 20, 20),
-            Shadow = new Shadow
-            {
-                Brush = Colors.Black,
-                Offset = new Point(0, 4),
-                Radius = 6,
-                Opacity = 0.3f
-            }
-        };
+        var fabButton = new FabButton("save.svg", Color.FromArgb("#16A34A"));
         fabButton.SetBinding(ImageButton.CommandProperty, nameof(OrderCreateViewModel.SaveOrderCommand));
-        
+
         var rootGrid = new Grid
         {
             RowDefinitions =

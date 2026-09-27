@@ -69,7 +69,6 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
     {
         await Shell.Current.GoToAsync(nameof(OrderCreatePage), new Dictionary<string, object>
         {
-            { "Order", Order }
             { nameof(Order), Order }
         });
     }
@@ -90,7 +89,6 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
         return $"Order #{OrderIdToString()}\n" +
                $"Customer: {Order.CustomerName}\n" +
                $"Address: {Order.Address}\n" +
-               $"Total: {Order.TotalAmount:N0} HUF\n" +
                $"Total: {Order.TotalAmount:N0} Ft\n" +
                $"Status: {(Order.IsDelivered ? "Delivered" : "Pending")}\n" +
                $"Created: {Order.CreatedAt:yyyy-MM-dd HH:mm}";

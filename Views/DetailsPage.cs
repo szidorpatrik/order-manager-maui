@@ -1,4 +1,5 @@
 using OrderManagerMaui.Components;
+using OrderManagerMaui.Theme;
 using OrderManagerMaui.ViewModels;
 
 namespace OrderManagerMaui.Views;
@@ -9,7 +10,7 @@ public class DetailsPage : ContentPage
     {
         BindingContext = viewModel;
         this.SetBinding(TitleProperty, nameof(DetailsViewModel.PageTitle));
-        BackgroundColor = Color.FromArgb("#F8FAFC");
+        BackgroundColor = AppColor.Background.ToColor();
 
         var copyToolbarItem = new ToolbarItem
         {
@@ -18,10 +19,7 @@ public class DetailsPage : ContentPage
             Priority = 0,
             Order = ToolbarItemOrder.Primary,
         };
-        copyToolbarItem.SetBinding(
-            MenuItem.CommandProperty,
-            nameof(DetailsViewModel.CopyOrderToClipboardCommand)
-        );
+        copyToolbarItem.SetBinding(MenuItem.CommandProperty, nameof(DetailsViewModel.CopyOrderToClipboardCommand));
         ToolbarItems.Add(copyToolbarItem);
 
         var shareToolbarItem = new ToolbarItem
@@ -31,16 +29,13 @@ public class DetailsPage : ContentPage
             Priority = 1,
             Order = ToolbarItemOrder.Primary,
         };
-        shareToolbarItem.SetBinding(
-            MenuItem.CommandProperty,
-            nameof(DetailsViewModel.ShareOrderCommand)
-        );
+        shareToolbarItem.SetBinding(MenuItem.CommandProperty, nameof(DetailsViewModel.ShareOrderCommand));
         ToolbarItems.Add(shareToolbarItem);
 
         var detailsCard = new OrderDetailsCard();
         detailsCard.SetBinding(BindingContextProperty, nameof(DetailsViewModel.Order));
 
-        var fabButton = new FabButton("edit.svg", Colors.Goldenrod);
+        var fabButton = new FabButton("edit.svg", AppColor.Warning);
         fabButton.SetBinding(ImageButton.CommandProperty, nameof(DetailsViewModel.GoEditCommand));
         fabButton.SetBinding(ImageButton.CommandParameterProperty, nameof(DetailsViewModel.Order));
 
@@ -63,7 +58,6 @@ public class DetailsPage : ContentPage
         try
         {
             base.OnAppearing();
-
             if (BindingContext is DetailsViewModel viewModel)
             {
                 await viewModel.RefreshCommand.ExecuteAsync(null);

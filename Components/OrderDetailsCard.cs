@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.Maui.Controls.Shapes;
 using OrderManagerMaui.Models;
+using OrderManagerMaui.Theme;
 using OrderManagerMaui.ViewModels;
 
 namespace OrderManagerMaui.Components;
@@ -10,9 +11,9 @@ public class OrderDetailsCard : Border
     public OrderDetailsCard()
     {
         StrokeShape = new RoundRectangle { CornerRadius = 14 };
-        Stroke = Color.FromArgb("#E2E8F0");
+        Stroke = AppColor.Border.ToColor();
         StrokeThickness = 1;
-        BackgroundColor = Colors.White;
+        BackgroundColor = AppColor.Surface.ToColor();
         Padding = new Thickness(20);
         Margin = new Thickness(16, 12);
 
@@ -28,7 +29,7 @@ public class OrderDetailsCard : Border
         {
             FontSize = 22,
             FontAttributes = FontAttributes.Bold,
-            TextColor = Color.FromArgb("#0F172A")
+            TextColor = AppColor.TextPrimary.ToColor()
         };
         customerNameLabel.SetBinding(Label.TextProperty, nameof(Order.CustomerName));
 
@@ -40,22 +41,16 @@ public class OrderDetailsCard : Border
             VerticalOptions = LayoutOptions.Center
         };
         statusLabel.SetBinding(Label.TextProperty,
-            new Binding(
-                nameof(Order.IsDelivered),
-                converter: new StatusTextConverter()
-            )
+            new Binding(nameof(Order.IsDelivered), converter: new StatusTextConverter())
         );
         statusLabel.SetBinding(Label.TextColorProperty,
-            new Binding(
-                nameof(Order.IsDelivered),
-                converter: new StatusTextColorConverter()
-            )
+            new Binding(nameof(Order.IsDelivered), converter: new StatusTextColorConverter())
         );
 
         var addressLabel = new Label
         {
             FontSize = 15,
-            TextColor = Color.FromArgb("#475569")
+            TextColor = AppColor.TextSecondary.ToColor()
         };
         addressLabel.SetBinding(Label.TextProperty, nameof(Order.Address));
 
@@ -63,7 +58,7 @@ public class OrderDetailsCard : Border
         {
             FontSize = 20,
             FontAttributes = FontAttributes.Bold,
-            TextColor = Color.FromArgb("#16A34A")
+            TextColor = AppColor.Success.ToColor()
         };
         amountLabel.SetBinding(Label.TextProperty, new Binding(
             nameof(Order.TotalAmountString),
@@ -73,7 +68,7 @@ public class OrderDetailsCard : Border
         var locationLabel = new Label
         {
             FontSize = 13,
-            TextColor = Color.FromArgb("#64748B")
+            TextColor = AppColor.TextMuted.ToColor()
         };
         locationLabel.SetBinding(Label.TextProperty, new Binding(
             nameof(Order.Latitude),
@@ -83,7 +78,7 @@ public class OrderDetailsCard : Border
         var dateLabel = new Label
         {
             FontSize = 12,
-            TextColor = Color.FromArgb("#94A3B8")
+            TextColor = AppColor.TextSubtle.ToColor()
         };
         dateLabel.SetBinding(Label.TextProperty, new Binding(
             nameof(Order.CreatedAt),
@@ -100,13 +95,16 @@ public class OrderDetailsCard : Border
                     Spacing = 8,
                     Children = { customerNameLabel, statusLabel }
                 },
-                new BoxView { HeightRequest = 1, Color = Color.FromArgb("#F1F5F9") },
+                new BoxView { HeightRequest = 1, Color = AppColor.Divider.ToColor() },
                 new VerticalStackLayout
                 {
                     Spacing = 4,
                     Children =
                     {
-                        new Label { Text = "Delivery Address:", FontSize = 12, TextColor = Color.FromArgb("#94A3B8") },
+                        new Label
+                        {
+                            Text = "Delivery Address:", FontSize = 12, TextColor = AppColor.TextSubtle.ToColor()
+                        },
                         addressLabel
                     }
                 },
@@ -115,7 +113,7 @@ public class OrderDetailsCard : Border
                     Spacing = 4,
                     Children =
                     {
-                        new Label { Text = "Coordinates:", FontSize = 12, TextColor = Color.FromArgb("#94A3B8") },
+                        new Label { Text = "Coordinates:", FontSize = 12, TextColor = AppColor.TextSubtle.ToColor() },
                         locationLabel
                     }
                 },
@@ -124,7 +122,7 @@ public class OrderDetailsCard : Border
                     Spacing = 4,
                     Children =
                     {
-                        new Label { Text = "Total Amount:", FontSize = 12, TextColor = Color.FromArgb("#94A3B8") },
+                        new Label { Text = "Total Amount:", FontSize = 12, TextColor = AppColor.TextSubtle.ToColor() },
                         amountLabel
                     }
                 },
@@ -136,38 +134,27 @@ public class OrderDetailsCard : Border
 
 public class StatusTextConverter : IValueConverter
 {
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        return value is true ? "✓ Delivered" : "● Pending";
-    }
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is true ? "✓ Delivered" : "● Pending";
 
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotImplementedException();
-    }
 }
 
 public class StatusTextColorConverter : IValueConverter
 {
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        return value is true ? Color.FromArgb("#16A34A") : Colors.Goldenrod;
-    }
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is true ? AppColor.Success.ToColor() : AppColor.Warning.ToColor();
 
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotImplementedException();
-    }
 }
 
 public class LocationTextConverter : IValueConverter
 {
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        return value is double lat && lat != 0 ? $"{lat:F8}° N" : "Not resolved yet";
-    }
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is double lat && lat != 0 ? $"{lat:F8}° N" : "Not resolved yet";
 
-    public object ConvertBack(object? value, Type targetType, object? parameter,
-        CultureInfo culture) =>
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotImplementedException();
 }

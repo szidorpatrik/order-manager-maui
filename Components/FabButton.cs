@@ -1,7 +1,13 @@
+using OrderManagerMaui.Theme;
+
 namespace OrderManagerMaui.Components;
 
 public class FabButton : ImageButton
 {
+    public FabButton(string iconSource, AppColor color) : this(iconSource, color.ToColor())
+    {
+    }
+
     public FabButton(string iconSource, Color backgroundColor)
     {
         Source = iconSource;

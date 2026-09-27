@@ -1,4 +1,5 @@
 using OrderManagerMaui.Components;
+using OrderManagerMaui.Theme;
 using OrderManagerMaui.ViewModels;
 
 namespace OrderManagerMaui.Views;
@@ -8,7 +9,7 @@ public class OrdersPage : ContentPage
     public OrdersPage(OrdersViewModel viewModel)
     {
         BindingContext = viewModel;
-        BackgroundColor = Color.FromArgb("#F8FAFC");
+        BackgroundColor = AppColor.Background.ToColor();
 
         var collectionView = new CollectionView
         {
@@ -21,16 +22,11 @@ public class OrdersPage : ContentPage
             }
         };
         collectionView.SetBinding(ItemsView.ItemsSourceProperty, nameof(OrdersViewModel.Orders));
-        collectionView.SetBinding(
-            SelectableItemsView.SelectedItemProperty,
-            nameof(OrdersViewModel.SelectedOrder)
-        );
-        collectionView.SetBinding(
-            SelectableItemsView.SelectionChangedCommandProperty,
-            nameof(OrdersViewModel.NavigateToDetailsCommand)
-        );
+        collectionView.SetBinding(SelectableItemsView.SelectedItemProperty, nameof(OrdersViewModel.SelectedOrder));
+        collectionView.SetBinding(SelectableItemsView.SelectionChangedCommandProperty,
+            nameof(OrdersViewModel.NavigateToDetailsCommand));
 
-        var fabButton = new FabButton("add.svg", Color.FromArgb("#4F46E5"));
+        var fabButton = new FabButton("add.svg", AppColor.Primary);
         fabButton.SetBinding(ImageButton.CommandProperty, nameof(OrdersViewModel.NavigateToCreateOrderCommand));
 
         var rootGrid = new Grid { Margin = new Thickness(0, 6, 0, 0) };

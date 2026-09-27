@@ -1,5 +1,6 @@
 using Microsoft.Maui.Controls.Shapes;
 using OrderManagerMaui.Models;
+using OrderManagerMaui.Theme;
 using OrderManagerMaui.ViewModels;
 
 namespace OrderManagerMaui.Components;
@@ -9,9 +10,9 @@ public class OrderListItem : Border
     public OrderListItem()
     {
         StrokeShape = new RoundRectangle { CornerRadius = 12 };
-        Stroke = Color.FromArgb("#E2E8F0");
+        Stroke = AppColor.Border.ToColor();
         StrokeThickness = 1;
-        BackgroundColor = Colors.White;
+        BackgroundColor = AppColor.Surface.ToColor();
         Padding = new Thickness(16, 12);
         Margin = new Thickness(14, 6);
 
@@ -27,7 +28,7 @@ public class OrderListItem : Border
         {
             FontSize = 16,
             FontAttributes = FontAttributes.Bold,
-            TextColor = Color.FromArgb("#0F172A"),
+            TextColor = AppColor.TextPrimary.ToColor(),
             LineBreakMode = LineBreakMode.TailTruncation
         };
         customerNameLabel.SetBinding(Label.TextProperty, nameof(Order.CustomerName));
@@ -35,7 +36,7 @@ public class OrderListItem : Border
         var addressLabel = new Label
         {
             FontSize = 13,
-            TextColor = Color.FromArgb("#64748B"),
+            TextColor = AppColor.TextMuted.ToColor(),
             LineBreakMode = LineBreakMode.TailTruncation
         };
         addressLabel.SetBinding(Label.TextProperty, nameof(Order.Address));
@@ -51,7 +52,7 @@ public class OrderListItem : Border
         {
             FontSize = 15,
             FontAttributes = FontAttributes.Bold,
-            TextColor = Color.FromArgb("#16A34A"),
+            TextColor = AppColor.Success.ToColor(),
             HorizontalOptions = LayoutOptions.End,
             VerticalOptions = LayoutOptions.Center
         };
@@ -62,8 +63,8 @@ public class OrderListItem : Border
         var deleteButton = new Button
         {
             Text = "✕",
-            TextColor = Color.FromArgb("#EF4444"),
-            BackgroundColor = Color.FromArgb("#FEE2E2"),
+            TextColor = AppColor.Danger.ToColor(),
+            BackgroundColor = AppColor.DangerSubtle.ToColor(),
             CornerRadius = 16,
             FontSize = 13,
             FontAttributes = FontAttributes.Bold,

@@ -1,5 +1,6 @@
 using Microsoft.Maui.Controls.Shapes;
 using OrderManagerMaui.Components;
+using OrderManagerMaui.Theme;
 using OrderManagerMaui.ViewModels;
 
 namespace OrderManagerMaui.Views;
@@ -10,7 +11,7 @@ public class OrderCreatePage : ContentPage
     {
         BindingContext = viewModel;
         this.SetBinding(TitleProperty, nameof(OrderCreateViewModel.PageTitle));
-        BackgroundColor = Color.FromArgb("#F8FAFC");
+        BackgroundColor = AppColor.Background.ToColor();
 
         var customerNameEntry = new Entry
         {
@@ -40,9 +41,9 @@ public class OrderCreatePage : ContentPage
         var formCard = new Border
         {
             StrokeShape = new RoundRectangle { CornerRadius = 14 },
-            Stroke = Color.FromArgb("#E2E8F0"),
+            Stroke = AppColor.Border.ToColor(),
             StrokeThickness = 1,
-            BackgroundColor = Colors.White,
+            BackgroundColor = AppColor.Surface.ToColor(),
             Padding = new Thickness(20),
             Margin = new Thickness(16, 12),
             Shadow = new Shadow
@@ -57,19 +58,19 @@ public class OrderCreatePage : ContentPage
                 Spacing = 16,
                 Children =
                 {
-                    new Label { Text = "Customer Name", FontSize = 12, TextColor = Color.FromArgb("#94A3B8") },
+                    new Label { Text = "Customer Name", FontSize = 12, TextColor = AppColor.TextSubtle.ToColor() },
                     customerNameEntry,
-                    new BoxView { HeightRequest = 1, Color = Color.FromArgb("#F1F5F9") },
-                    new Label { Text = "Delivery Address", FontSize = 12, TextColor = Color.FromArgb("#94A3B8") },
+                    new BoxView { HeightRequest = 1, Color = AppColor.Divider.ToColor() },
+                    new Label { Text = "Delivery Address", FontSize = 12, TextColor = AppColor.TextSubtle.ToColor() },
                     addressEntry,
-                    new BoxView { HeightRequest = 1, Color = Color.FromArgb("#F1F5F9") },
-                    new Label { Text = "Total Amount (Ft)", FontSize = 12, TextColor = Color.FromArgb("#94A3B8") },
+                    new BoxView { HeightRequest = 1, Color = AppColor.Divider.ToColor() },
+                    new Label { Text = "Total Amount (Ft)", FontSize = 12, TextColor = AppColor.TextSubtle.ToColor() },
                     amountEntry
                 }
             }
         };
 
-        var fabButton = new FabButton("save.svg", Color.FromArgb("#16A34A"));
+        var fabButton = new FabButton("save.svg", AppColor.Success);
         fabButton.SetBinding(ImageButton.CommandProperty, nameof(OrderCreateViewModel.SaveOrderCommand));
 
         var rootGrid = new Grid

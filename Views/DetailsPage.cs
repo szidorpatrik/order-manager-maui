@@ -43,7 +43,7 @@ public class DetailsPage : ContentPage
         var fabButton = new ImageButton
         {
             Source = "edit.svg",
-            BackgroundColor = Color.FromArgb("#4F46E5"),
+            BackgroundColor = Colors.Goldenrod,
             CornerRadius = 28,
             WidthRequest = 56,
             HeightRequest = 56,

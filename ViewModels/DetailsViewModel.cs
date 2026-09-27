@@ -1,5 +1,4 @@
 using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OrderManagerMaui.Models;
@@ -14,8 +13,11 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
     [ObservableProperty]
     public partial Order Order { get; set; } = new();
 
-    public string PageTitle => Order.Id > 0 ? $"Order #{Order.Id}" : "Order Details";
+    [ObservableProperty]
+    public partial bool IsBusy { get; set; }
 
+    public bool IsNotBusy => !IsBusy;
+    public string PageTitle => Order.Id > 0 ? $"Order #{Order.Id}" : "Order Details";
     public bool HasCoordinates => Order is { Latitude: not null, Longitude: not null };
     public bool CanDeliver => !Order.IsDelivered;
     public bool IsReadonly => !Order.IsDelivered;
@@ -26,6 +28,11 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
         OnPropertyChanged(nameof(HasCoordinates));
         OnPropertyChanged(nameof(CanDeliver));
         OnPropertyChanged(nameof(IsReadonly));
+    }
+
+    partial void OnIsBusyChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsNotBusy));
     }
 
     [RelayCommand]
@@ -46,9 +53,9 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
     [RelayCommand]
     private async Task DeliverOrderAsync()
     {
-        if (Order.Id <= 0 || Order.IsDelivered) return;
+        if (Order.Id <= 0 || Order.IsDelivered || IsBusy) return;
 
-        try
+        if (Shell.Current is not null)
         {
             var confirmed = await Shell.Current.DisplayAlertAsync(
                 "Confirm Delivery",
@@ -57,18 +64,30 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
                 "No"
             );
             if (!confirmed) return;
+        }
 
+        IsBusy = true;
+
+        try
+        {
             var permStatus = await GetLocationPermission();
             if (!permStatus)
             {
-                await Shell.Current.DisplayAlertAsync("Permission Required",
-                    "Location access is required to record delivery coordinates.", "OK");
+                if (Shell.Current is not null)
+                {
+                    await Shell.Current.DisplayAlertAsync(
+                        "Permission Required",
+                        "Location access is required to record delivery coordinates.",
+                        "OK"
+                    );
+                }
+
                 return;
             }
-            
+
             var toast = Toast.Make("Resolving GPS location");
             await toast.Show();
-            
+
             var request = new GeolocationRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(10));
             var location = await Geolocation.Default.GetLocationAsync(request);
 
@@ -87,14 +106,21 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlertAsync("GPS Error", ex.Message, "OK");
+            if (Shell.Current is not null)
+            {
+                await Shell.Current.DisplayAlertAsync("GPS Error", ex.Message, "OK");
+            }
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 
     [RelayCommand]
     private async Task OpenMapAsync()
     {
-        if (Order.Latitude is null || Order.Longitude is null) return;
+        if (Order.Latitude is null || Order.Longitude is null || IsBusy) return;
 
         await Map.Default.OpenAsync(Order.Latitude.Value, Order.Longitude.Value, new MapLaunchOptions
         {
@@ -106,7 +132,7 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
     [RelayCommand]
     private async Task ShareOrderAsync()
     {
-        if (string.IsNullOrWhiteSpace(Order.CustomerName)) return;
+        if (string.IsNullOrWhiteSpace(Order.CustomerName) || IsBusy) return;
 
         await Share.Default.RequestAsync(new ShareTextRequest
         {
@@ -118,7 +144,7 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
     [RelayCommand]
     private async Task CopyOrderToClipboardAsync()
     {
-        if (string.IsNullOrWhiteSpace(Order.CustomerName)) return;
+        if (string.IsNullOrWhiteSpace(Order.CustomerName) || IsBusy) return;
 
         await Clipboard.Default.SetTextAsync(OrderToString());
 
@@ -129,6 +155,8 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
     [RelayCommand]
     private async Task GoEditAsync()
     {
+        if (IsBusy) return;
+
         await Shell.Current.GoToAsync(nameof(OrderCreatePage), new Dictionary<string, object>
         {
             { nameof(Order), Order }
@@ -163,6 +191,7 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
         {
             status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
         }
+
         return status == PermissionStatus.Granted;
     }
 }

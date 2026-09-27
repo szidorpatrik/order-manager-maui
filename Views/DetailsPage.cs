@@ -41,35 +41,26 @@ public class DetailsPage : ContentPage
             Children =
             {
                 detailsCard,
-                new BoxView
-                {
-                    HeightRequest = 220, Color = Colors.Transparent
-                }
+                new BoxView { HeightRequest = 220, Color = Colors.Transparent }
             }
         };
 
         var scrollView = new ScrollView { Content = contentStack };
 
-        var mapFab = new FabButton("map.svg", AppColor.Secondary)
-        {
-            Margin = new Thickness(0)
-        };
+        var mapFab = new FabButton("map.svg", AppColor.Secondary) { Margin = new Thickness(0) };
         mapFab.SetBinding(ImageButton.CommandProperty, nameof(DetailsViewModel.OpenMapCommand));
         mapFab.SetBinding(IsVisibleProperty, nameof(DetailsViewModel.HasCoordinates));
+        mapFab.SetBinding(IsEnabledProperty, nameof(DetailsViewModel.IsNotBusy));
 
-        var deliverFab = new FabButton("check.svg", AppColor.Success)
-        {
-            Margin = new Thickness(0)
-        };
+        var deliverFab = new FabButton("check.svg", AppColor.Success) { Margin = new Thickness(0) };
         deliverFab.SetBinding(ImageButton.CommandProperty, nameof(DetailsViewModel.DeliverOrderCommand));
         deliverFab.SetBinding(IsVisibleProperty, nameof(DetailsViewModel.CanDeliver));
+        deliverFab.SetBinding(IsEnabledProperty, nameof(DetailsViewModel.IsNotBusy));
 
-        var editFab = new FabButton("edit.svg", AppColor.Warning)
-        {
-            Margin = new Thickness(0)
-        };
+        var editFab = new FabButton("edit.svg", AppColor.Warning) { Margin = new Thickness(0) };
         editFab.SetBinding(ImageButton.CommandProperty, nameof(DetailsViewModel.GoEditCommand));
         editFab.SetBinding(IsVisibleProperty, nameof(DetailsViewModel.IsReadonly));
+        editFab.SetBinding(IsEnabledProperty, nameof(DetailsViewModel.IsNotBusy));
 
         var fabStack = new VerticalStackLayout
         {
@@ -79,6 +70,7 @@ public class DetailsPage : ContentPage
             Margin = new Thickness(0, 0, 20, 20),
             Children = { mapFab, editFab, deliverFab }
         };
+        fabStack.SetBinding(InputTransparentProperty, nameof(DetailsViewModel.IsBusy));
 
         var rootGrid = new Grid();
         rootGrid.Children.Add(scrollView);

@@ -1,4 +1,5 @@
 using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OrderManagerMaui.Models;
@@ -15,13 +16,20 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
 
     public string PageTitle => Order.Id > 0 ? $"Order #{Order.Id}" : "Order Details";
 
+    public bool HasCoordinates => Order is { Latitude: not null, Longitude: not null };
+    public bool CanDeliver => !Order.IsDelivered;
+    public bool IsReadonly => !Order.IsDelivered;
+
     partial void OnOrderChanged(Order value)
     {
         OnPropertyChanged(nameof(PageTitle));
+        OnPropertyChanged(nameof(HasCoordinates));
+        OnPropertyChanged(nameof(CanDeliver));
+        OnPropertyChanged(nameof(IsReadonly));
     }
 
     [RelayCommand]
-    private async Task RefreshAsync()
+    public async Task RefreshAsync()
     {
         if (Order.Id <= 0) return;
 
@@ -29,16 +37,70 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
         if (refreshed is not null)
         {
             Order = refreshed;
+            OnPropertyChanged(nameof(HasCoordinates));
+            OnPropertyChanged(nameof(CanDeliver));
+            OnPropertyChanged(nameof(IsReadonly));
         }
     }
+
     [RelayCommand]
-    private async Task ToggleDeliveryStatusAsync()
+    private async Task DeliverOrderAsync()
     {
         if (Order.Id <= 0 || Order.IsDelivered) return;
 
-        Order.IsDelivered = !Order.IsDelivered;
-        await db.SaveOrder(Order);
-        await RefreshAsync();
+        try
+        {
+            var confirmed = await Shell.Current.DisplayAlertAsync(
+                "Confirm Delivery",
+                $"Are you sure you want to mark Order #{Order.Id} as delivered?",
+                "Yes",
+                "No"
+            );
+            if (!confirmed) return;
+
+            var permStatus = await GetLocationPermission();
+            if (!permStatus)
+            {
+                await Shell.Current.DisplayAlertAsync("Permission Required",
+                    "Location access is required to record delivery coordinates.", "OK");
+                return;
+            }
+            
+            var toast = Toast.Make("Resolving GPS location");
+            await toast.Show();
+            
+            var request = new GeolocationRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(10));
+            var location = await Geolocation.Default.GetLocationAsync(request);
+
+            if (location is not null)
+            {
+                Order.Latitude = location.Latitude;
+                Order.Longitude = location.Longitude;
+            }
+
+            Order.IsDelivered = true;
+            await db.SaveOrder(Order);
+            await RefreshAsync();
+
+            toast = Toast.Make("Order delivered and GPS location saved");
+            await toast.Show();
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlertAsync("GPS Error", ex.Message, "OK");
+        }
+    }
+
+    [RelayCommand]
+    private async Task OpenMapAsync()
+    {
+        if (Order.Latitude is null || Order.Longitude is null) return;
+
+        await Map.Default.OpenAsync(Order.Latitude.Value, Order.Longitude.Value, new MapLaunchOptions
+        {
+            Name = Order.CustomerName,
+            NavigationMode = NavigationMode.None
+        });
     }
 
     [RelayCommand]
@@ -92,5 +154,15 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
                $"Total: {Order.TotalAmount:N0} Ft\n" +
                $"Status: {(Order.IsDelivered ? "Delivered" : "Pending")}\n" +
                $"Created: {Order.CreatedAt:yyyy-MM-dd HH:mm}";
+    }
+
+    private async Task<bool> GetLocationPermission()
+    {
+        var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+        if (status != PermissionStatus.Granted)
+        {
+            status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+        }
+        return status == PermissionStatus.Granted;
     }
 }

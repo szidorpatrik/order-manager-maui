@@ -35,20 +35,54 @@ public class DetailsPage : ContentPage
         var detailsCard = new OrderDetailsCard();
         detailsCard.SetBinding(BindingContextProperty, nameof(DetailsViewModel.Order));
 
-        var fabButton = new FabButton("edit.svg", AppColor.Warning);
-        fabButton.SetBinding(ImageButton.CommandProperty, nameof(DetailsViewModel.GoEditCommand));
-        fabButton.SetBinding(ImageButton.CommandParameterProperty, nameof(DetailsViewModel.Order));
-
-        var rootGrid = new Grid
+        var contentStack = new VerticalStackLayout
         {
-            RowDefinitions =
+            Spacing = 10,
+            Children =
             {
-                new RowDefinition { Height = GridLength.Auto },
-                new RowDefinition { Height = GridLength.Star },
+                detailsCard,
+                new BoxView
+                {
+                    HeightRequest = 220, Color = Colors.Transparent
+                }
             }
         };
-        rootGrid.Add(detailsCard, 0, 0);
-        rootGrid.Add(fabButton, 0, 1);
+
+        var scrollView = new ScrollView { Content = contentStack };
+
+        var mapFab = new FabButton("map.svg", AppColor.Secondary)
+        {
+            Margin = new Thickness(0)
+        };
+        mapFab.SetBinding(ImageButton.CommandProperty, nameof(DetailsViewModel.OpenMapCommand));
+        mapFab.SetBinding(IsVisibleProperty, nameof(DetailsViewModel.HasCoordinates));
+
+        var deliverFab = new FabButton("check.svg", AppColor.Success)
+        {
+            Margin = new Thickness(0)
+        };
+        deliverFab.SetBinding(ImageButton.CommandProperty, nameof(DetailsViewModel.DeliverOrderCommand));
+        deliverFab.SetBinding(IsVisibleProperty, nameof(DetailsViewModel.CanDeliver));
+
+        var editFab = new FabButton("edit.svg", AppColor.Warning)
+        {
+            Margin = new Thickness(0)
+        };
+        editFab.SetBinding(ImageButton.CommandProperty, nameof(DetailsViewModel.GoEditCommand));
+        editFab.SetBinding(IsVisibleProperty, nameof(DetailsViewModel.IsReadonly));
+
+        var fabStack = new VerticalStackLayout
+        {
+            Spacing = 12,
+            HorizontalOptions = LayoutOptions.End,
+            VerticalOptions = LayoutOptions.End,
+            Margin = new Thickness(0, 0, 20, 20),
+            Children = { mapFab, editFab, deliverFab }
+        };
+
+        var rootGrid = new Grid();
+        rootGrid.Children.Add(scrollView);
+        rootGrid.Children.Add(fabStack);
 
         Content = rootGrid;
     }

@@ -24,6 +24,20 @@ public class OrderListItem : Border
             Opacity = 0.06f
         };
 
+        var statusIndicator = new BoxView
+        {
+            WidthRequest = 4,
+            CornerRadius = 2,
+            VerticalOptions = LayoutOptions.Fill
+        };
+        statusIndicator.SetBinding(
+            BoxView.ColorProperty,
+            new Binding(
+                nameof(Order.IsDelivered),
+                converter: new StatusTextColorConverter()
+            )
+        );
+
         var customerNameLabel = new Label
         {
             FontSize = 16,
@@ -91,15 +105,17 @@ public class OrderListItem : Border
             ColumnSpacing = 12,
             ColumnDefinitions =
             {
+                new ColumnDefinition { Width = GridLength.Auto },
                 new ColumnDefinition { Width = GridLength.Star },
                 new ColumnDefinition { Width = GridLength.Auto },
                 new ColumnDefinition { Width = GridLength.Auto }
             }
         };
 
-        grid.Add(textStack, 0);
-        grid.Add(amountLabel, 1);
-        grid.Add(deleteButton, 2);
+        grid.Add(statusIndicator, 0);
+        grid.Add(textStack, 1);
+        grid.Add(amountLabel, 2);
+        grid.Add(deleteButton, 3);
 
         Content = grid;
     }

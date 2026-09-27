@@ -21,13 +21,24 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
     }
 
     [RelayCommand]
-    private async Task GoEditAsync()
+    private async Task RefreshAsync()
     {
-        var parameters = new Dictionary<string, object>
+        if (Order.Id <= 0) return;
+
+        var refreshed = await db.GetOrderById(Order.Id);
+        if (refreshed is not null)
         {
-            { "Order", Order }
-        };
-        await Shell.Current.GoToAsync(nameof(OrderCreatePage), parameters);
+            Order = refreshed;
+        }
+    }
+    [RelayCommand]
+    private async Task ToggleDeliveryStatusAsync()
+    {
+        if (Order.Id <= 0 || Order.IsDelivered) return;
+
+        Order.IsDelivered = !Order.IsDelivered;
+        await db.SaveOrder(Order);
+        await RefreshAsync();
     }
 
     [RelayCommand]
@@ -59,6 +70,7 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
         await Shell.Current.GoToAsync(nameof(OrderCreatePage), new Dictionary<string, object>
         {
             { "Order", Order }
+            { nameof(Order), Order }
         });
     }
 
@@ -79,6 +91,7 @@ public partial class DetailsViewModel(DatabaseService db) : ObservableObject
                $"Customer: {Order.CustomerName}\n" +
                $"Address: {Order.Address}\n" +
                $"Total: {Order.TotalAmount:N0} HUF\n" +
+               $"Total: {Order.TotalAmount:N0} Ft\n" +
                $"Status: {(Order.IsDelivered ? "Delivered" : "Pending")}\n" +
                $"Created: {Order.CreatedAt:yyyy-MM-dd HH:mm}";
     }

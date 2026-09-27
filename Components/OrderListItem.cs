@@ -23,6 +23,27 @@ public class OrderListItem : Border
             Radius = 4,
             Opacity = 0.06f
         };
+        
+        var commonGroup = new VisualStateGroup { Name = "CommonStates" };
+
+        var normalState = new VisualState { Name = "Normal" };
+        normalState.Setters.Add(new Setter
+        {
+            Property = BackgroundColorProperty,
+            Value = AppColor.Surface.ToColor()
+        });
+
+        var selectedState = new VisualState { Name = "Selected" };
+        selectedState.Setters.Add(new Setter
+        {
+            Property = BackgroundColorProperty,
+            Value = Color.FromArgb("#EEF2FF")
+        });
+
+        commonGroup.States.Add(normalState);
+        commonGroup.States.Add(selectedState);
+
+        VisualStateManager.SetVisualStateGroups(this, [commonGroup]);
 
         var statusIndicator = new BoxView
         {
